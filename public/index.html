@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>File Compressor</title>
+  <style>
+    body {
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #6a11cb, #2575fc);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+    .container {
+      background: #ffffff;
+      padding: 35px 25px;
+      border-radius: 20px;
+      box-shadow: 0 12px 35px rgba(0,0,0,0.25);
+      width: 380px;
+      text-align: center;
+      animation: fadeIn 0.9s ease-in-out;
+    }
+    h1 {
+  margin-bottom: 25px;
+  color: #444;
+  font-size: 26px;
+  background: linear-gradient(90deg, #6a11cb, #2575fc);
+  background-clip: text;          /* Standard */
+  -webkit-background-clip: text;  /* Chrome, Safari */
+  -webkit-text-fill-color: transparent;
+}
+
+    .file-upload {
+      margin: 20px 0;
+      padding: 15px;
+      border-radius: 12px;
+      background: #f3f4f8;
+      box-shadow: inset 0 2px 6px rgba(0,0,0,0.08);
+    }
+    label {
+      font-weight: bold;
+      color: #6a11cb;
+      display: block;
+      margin-bottom: 8px;
+    }
+    input[type="file"] {
+      padding: 12px;
+      border: 2px dashed #6a11cb;
+      border-radius: 10px;
+      background: #fff;
+      cursor: pointer;
+      width: 100%;
+      transition: 0.3s;
+    }
+    input[type="file"]:hover {
+      border-color: #2575fc;
+      background: #f0f8ff;
+    }
+    button {
+      margin-top: 12px;
+      padding: 12px 25px;
+      border: none;
+      border-radius: 10px;
+      background: linear-gradient(90deg, #6a11cb, #2575fc);
+      color: white;
+      font-weight: bold;
+      font-size: 15px;
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    button:hover {
+      transform: scale(.7);
+      box-shadow: 0 5px 18px rgba(0,0,0,0.25);
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-25px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+  <div class="container" , id="abcd">
+    <h1>🌈 File Compressor</h1>
+
+    <!-- Compression -->
+    <div class="file-upload">
+      <label>📂 Choose Text File:</label>
+      <input type="file" id="textFile">
+      <button onclick="uploadFile('compress')">⚡ Compress</button>
+    </div>
+
+    <!-- Decompression -->
+    <div class="file-upload">
+      <label>📂 Choose Compressed File:</label>
+      <input type="file" id="compressedFile">
+      <button onclick="uploadFile('decompress')">🔄 Decompress</button>
+    </div>
+  </div>
+
+  <script>
+    // Helper: replace extension
+    function changeExtension(filename, newExt) {
+      return filename.replace(/\.[^/.]+$/, "") + newExt;
+    }
+
+    async function uploadFile(action) {
+      const input = document.getElementById(
+        action === "compress" ? "textFile" : "compressedFile"
+      );
+
+      if (!input.files.length) {
+        alert("⚠️ Please choose a file first.");
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append("file", input.files[0]);
+
+      const endpoint = action === "compress" ? "/upload" : "/decompress";
+
+      try {
+        const response = await fetch(endpoint, {
+          method: "POST",
+          body: formData
+        });
+
+        if (!response.ok) throw new Error("Server error");
+
+        // Auto-download
+        const blob = await response.blob();
+        const link = document.createElement("a");
+        link.download = changeExtension(
+          input.files[0].name,
+          action === "compress" ? ".huf" : ".txt"
+        );
+        link.href = window.URL.createObjectURL(blob);
+        link.click();
+      } catch (err) {
+        alert("❌ Error: " + err.message);
+      }
+    }
+  </script>
+</body>
+</html>
